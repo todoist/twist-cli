@@ -930,3 +930,71 @@ describe('conversation reply --file', () => {
         expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining(files.png))
     })
 })
+
+describe('conversation view --since/--until', () => {
+    beforeEach(() => {
+        vi.clearAllMocks()
+    })
+
+    function setup() {
+        const conversation = createConversation(42, [1, 2], '2026-03-08T10:00:00.000Z')
+        const client = createClient({
+            activeConversations: [conversation],
+            messagesByConversation: { 42: [] },
+            users: { 1: { id: 1, name: 'Me' }, 2: { id: 2, name: 'Alice Example' } },
+        })
+        apiMocks.getTwistClient.mockResolvedValue(client)
+        return client
+    }
+
+    it('forwards --since and --until to the messages request', async () => {
+        const client = setup()
+        captureConsole()
+        await createProgram().parseAsync([
+            'node',
+            'tw',
+            'conversation',
+            'view',
+            '42',
+            '--since',
+            '2025-01-01T00:00:00Z',
+            '--until',
+            '2025-02-01T00:00:00Z',
+            '--json',
+        ])
+        expect(client.conversationMessages.getMessages).toHaveBeenCalledWith(
+            expect.objectContaining({
+                conversationId: 42,
+                limit: 50,
+                newerThan: new Date('2025-01-01T00:00:00Z'),
+                olderThan: new Date('2025-02-01T00:00:00Z'),
+            }),
+            { batch: true },
+        )
+    })
+
+    it('omits date filters when not provided', async () => {
+        const client = setup()
+        captureConsole()
+        await createProgram().parseAsync(['node', 'tw', 'conversation', 'view', '42', '--json'])
+        expect(client.conversationMessages.getMessages).toHaveBeenCalledWith(
+            { conversationId: 42, limit: 50, newerThan: undefined, olderThan: undefined },
+            { batch: true },
+        )
+    })
+
+    it('rejects an invalid --since date', async () => {
+        setup()
+        await expect(
+            createProgram().parseAsync([
+                'node',
+                'tw',
+                'conversation',
+                'view',
+                '42',
+                '--since',
+                'not-a-date',
+            ]),
+        ).rejects.toMatchObject({ code: 'INVALID_DATE' })
+    })
+})
