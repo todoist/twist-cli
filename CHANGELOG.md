@@ -1,3 +1,9 @@
+## [4.0.4](https://github.com/todoist/twist-cli/compare/v4.0.3...v4.0.4) (2026-11-23)
+
+### Bug Fixes
+
+- **deps:** update dependency @todoist/cli-core to v2.0.1 ([#374](https://github.com/todoist/twist-cli/issues/374)) ([c4cea6a](https://github.com/todoist/twist-cli/commit/c4cea6a7557b78ddc5927a77a8750b69367e09a7))
+
 ## [4.0.3](https://github.com/todoist/twist-cli/compare/v4.0.2...v4.0.3) (2026-11-23)
 
 ### Bug Fixes
