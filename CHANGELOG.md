@@ -1,3 +1,9 @@
+## [4.0.6](https://github.com/todoist/twist-cli/compare/v4.0.5...v4.0.6) (2026-11-26)
+
+### Bug Fixes
+
+- **deps:** update dependency oauth4webapi to v3.8.9 ([#376](https://github.com/todoist/twist-cli/issues/376)) ([7008dec](https://github.com/todoist/twist-cli/commit/7008decef00f3b2232412ce4c1d841613b3cefa6))
+
 ## [4.0.5](https://github.com/todoist/twist-cli/compare/v4.0.4...v4.0.5) (2026-11-25)
 
 ### Bug Fixes
