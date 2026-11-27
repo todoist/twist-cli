@@ -1,10 +1,22 @@
 import chalk from 'chalk'
 import { assertBatchData, buildOptionalBatchNameMap, getTwistClient } from '../../lib/api.js'
-import { formatRelativeDate } from '../../lib/dates.js'
+import { formatRelativeDate, parseDate } from '../../lib/dates.js'
+import { CliError } from '../../lib/errors.js'
 import { renderMarkdown } from '../../lib/markdown.js'
 import { colors, filterEntityFields } from '../../lib/output.js'
 import { resolveConversationId } from '../../lib/refs.js'
 import { buildConversationTitle, type ConversationViewOptions } from './helpers.js'
+
+function parseDateOption(value: string | undefined, flag: string): Date | undefined {
+    if (value === undefined) return undefined
+    const date = parseDate(value)
+    if (!date) {
+        throw new CliError('INVALID_DATE', `Invalid ${flag} date: ${value}`, [
+            'Use an ISO 8601 date, e.g. 2025-01-01 or 2025-01-01T12:00:00Z',
+        ])
+    }
+    return date
+}
 
 export async function viewConversation(
     ref: string,
@@ -13,6 +25,8 @@ export async function viewConversation(
     const conversationId = resolveConversationId(ref)
     const client = await getTwistClient()
     const limit = options.limit ? parseInt(options.limit, 10) : 50
+    const newerThan = parseDateOption(options.since, '--since')
+    const olderThan = parseDateOption(options.until, '--until')
 
     const [convResponse, messagesResponse] = await client.batch(
         client.conversations.getConversation(conversationId, { batch: true }),
@@ -20,6 +34,8 @@ export async function viewConversation(
             {
                 conversationId,
                 limit,
+                newerThan,
+                olderThan,
             },
             { batch: true },
         ),
